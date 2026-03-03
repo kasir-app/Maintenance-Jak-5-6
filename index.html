@@ -35,13 +35,19 @@
             color: #1e40af;
             font-weight: bold;
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 4px;
         }
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 10px;
+        }
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -55,19 +61,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-            <h1 class="font-bold italic text-lg truncate">MAINTENANCE JKT 5&6</h1>
+            <h1 class="font-bold italic text-lg truncate uppercase">Maintenance JKT 5&6</h1>
         </div>
         <div id="auth-status" class="text-[10px] bg-white/40 px-2 py-1 rounded font-mono">...</div>
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        <!-- Overlay for Mobile Sidebar -->
-        <div id="sidebar-overlay" class="overlay fixed inset-0 bg-black/50"></div>
-
         <!-- Sidebar Navigation -->
         <aside id="sidebar" class="sidebar fixed lg:static inset-y-0 left-0 w-64 bg-blue-900 text-white flex flex-col closed lg:transform-none shadow-2xl">
             <div class="p-6 border-b border-blue-800">
-                <p class="text-xs text-blue-300 uppercase tracking-widest font-bold">Menu Utama</p>
+                <p class="text-xs text-blue-300 uppercase tracking-widest font-bold italic">Main Menu</p>
             </div>
             <nav class="flex-1 p-4 space-y-2">
                 <button onclick="switchTab('form-tab')" id="btn-form" class="nav-link active w-full flex items-center gap-3 p-3 rounded-xl transition-all">
@@ -81,28 +84,30 @@
                 </button>
             </nav>
             <div class="p-6 bg-blue-950 text-[10px] text-blue-400">
-                &copy; 2024 Maintenance System v2.0
+                &copy; 2024 Maintenance System v2.1
             </div>
         </aside>
 
-        <!-- Main Content Area -->
+        <!-- Overlay -->
+        <div id="sidebar-overlay" class="overlay fixed inset-0 bg-black/50"></div>
+
+        <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50">
             
             <!-- TAB: FORM INPUT -->
             <div id="form-tab" class="tab-content max-w-2xl mx-auto">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="bg-blue-600 p-4 flex justify-between items-center text-white">
-                        <h2 id="form-title" class="font-bold flex items-center gap-2">📝 Laporan Baru</h2>
-                        <button id="cancel-edit" class="hidden text-xs bg-red-500 px-2 py-1 rounded hover:bg-red-600">Batal Edit</button>
+                        <h2 id="form-title" class="font-bold flex items-center gap-2 italic">📝 LAPORAN BARU</h2>
+                        <button id="cancel-edit" class="hidden text-xs bg-red-500 px-3 py-1 rounded-full hover:bg-red-600">Batal Edit</button>
                     </div>
                     
                     <form id="maintenance-form" class="p-6 space-y-5">
                         <input type="hidden" id="edit-id">
-                        
                         <div class="grid grid-cols-1 gap-4">
                             <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Branch</label>
-                                <select id="branch" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 ring-yellow-400 outline-none transition-all" required>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Branch</label>
+                                <select id="branch" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" required>
                                     <option value="">Pilih Branch</option>
                                     <optgroup label="JAKARTA 5">
                                         <option value="Jakarta 5 - Ciracas">Ciracas</option>
@@ -123,8 +128,8 @@
                             </div>
                             
                             <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Kategori</label>
-                                <select id="category" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 ring-yellow-400 outline-none transition-all" required>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Kategori Maintenance</label>
+                                <select id="category" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" required>
                                     <option value="">Pilih Kategori</option>
                                     <option value="Maintenance">Maintenance</option>
                                     <option value="Patroli Perangkat Distribusi">Patroli</option>
@@ -133,143 +138,151 @@
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Kode DP</label>
-                                <input type="text" id="dp-code" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Input Kode DP..." required>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Kode DP</label>
+                                    <input type="text" id="dp-code" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Contoh: DP-001" required>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Engineer</label>
+                                    <input type="text" id="pic-engineer" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Nama Engineer" required>
+                                </div>
                             </div>
 
                             <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Nama Engineer</label>
-                                <input type="text" id="pic-engineer" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Nama lengkap..." required>
-                            </div>
-
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Deskripsi Pekerjaan</label>
-                                <textarea id="description" rows="3" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Detail pekerjaan..." required></textarea>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Keterangan Pekerjaan</label>
+                                <textarea id="description" rows="2" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Detail hasil pengerjaan..." required></textarea>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 pt-2">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-bold text-blue-600 uppercase">Foto Sebelum</label>
-                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all overflow-hidden" id="label-before">
-                                    <div class="flex flex-col items-center justify-center pt-2" id="empty-before">
-                                        <span class="text-xl">📸</span>
-                                    </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-blue-500 uppercase ml-1">Foto Sebelum</label>
+                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 overflow-hidden relative">
+                                    <div id="empty-before" class="text-xl">📸</div>
+                                    <div id="preview-before" class="absolute inset-0 hidden"></div>
                                     <input type="file" id="photo-before" accept="image/*" class="hidden">
-                                    <div id="preview-before" class="w-full h-full hidden"></div>
                                 </label>
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-bold text-green-600 uppercase">Foto Selepas</label>
-                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all overflow-hidden" id="label-after">
-                                    <div class="flex flex-col items-center justify-center pt-2" id="empty-after">
-                                        <span class="text-xl">📸</span>
-                                    </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-green-500 uppercase ml-1">Foto Selepas</label>
+                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 overflow-hidden relative">
+                                    <div id="empty-after" class="text-xl">📸</div>
+                                    <div id="preview-after" class="absolute inset-0 hidden"></div>
                                     <input type="file" id="photo-after" accept="image/*" class="hidden">
-                                    <div id="preview-after" class="w-full h-full hidden"></div>
                                 </label>
                             </div>
                         </div>
 
-                        <button type="submit" id="submit-btn" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95">
-                            Simpan Laporan
+                        <button type="submit" id="submit-btn" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-4 rounded-2xl shadow-lg transition-transform active:scale-95 uppercase tracking-widest">
+                            SIMPAN DATA
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- TAB: DATA LIST -->
+            <!-- TAB: DATA LIST (PAGINATION INCLUDED) -->
             <div id="list-tab" class="tab-content hidden space-y-4">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">🔍 Tapis Data</h3>
+                <!-- Filter Section -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-700 flex items-center gap-2 italic">🔍 FILTER & CARI</h3>
+                        <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-lg">
+                            <span class="text-[10px] font-bold text-slate-500">Tampilkan:</span>
+                            <select id="page-size" onchange="updatePageSize()" class="bg-transparent text-xs font-bold outline-none">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <select id="filter-branch" class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
+                        <select id="filter-branch" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none focus:ring-2 ring-yellow-400">
                             <option value="All">Semua Branch</option>
-                            <option value="Jakarta 5 - Ciracas">Ciracas</option>
-                            <option value="Jakarta 5 - Cawang">Cawang</option>
-                            <option value="Jakarta 5 - Duren Sawit">Duren Sawit</option>
-                            <option value="Jakarta 5 - Rawamangun">Rawamangun</option>
-                            <option value="Jakarta 5 - Ujung Menteng">Ujung Menteng</option>
-                            <option value="Jakarta 5 - Pondok Kopi">Pondok Kopi</option>
-                            <option value="Jakarta 6 - Sunter">Sunter</option>
-                            <option value="Jakarta 6 - Pademangan">Pademangan</option>
-                            <option value="Jakarta 6 - Pluit">Pluit</option>
-                            <option value="Jakarta 6 - Kelapa Gading">Kelapa Gading</option>
-                            <option value="Jakarta 6 - Tanjung Priok">Tanjung Priok</option>
+                            <optgroup label="JAKARTA 5">
+                                <option value="Jakarta 5 - Ciracas">Ciracas</option>
+                                <option value="Jakarta 5 - Cawang">Cawang</option>
+                                <option value="Jakarta 5 - Duren Sawit">Duren Sawit</option>
+                                <option value="Jakarta 5 - Rawamangun">Rawamangun</option>
+                                <option value="Jakarta 5 - Ujung Menteng">Ujung Menteng</option>
+                                <option value="Jakarta 5 - Pondok Kopi">Pondok Kopi</option>
+                            </optgroup>
+                            <optgroup label="JAKARTA 6">
+                                <option value="Jakarta 6 - Sunter">Sunter</option>
+                                <option value="Jakarta 6 - Pademangan">Pademangan</option>
+                                <option value="Jakarta 6 - Pluit">Pluit</option>
+                                <option value="Jakarta 6 - Kelapa Gading">Kelapa Gading</option>
+                                <option value="Jakarta 6 - Tanjung Priok">Tanjung Priok</option>
+                            </optgroup>
                         </select>
-                        <input type="text" id="filter-engineer" placeholder="Nama Engineer..." class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
-                        <input type="date" id="filter-start" class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
-                        <input type="date" id="filter-end" class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
+                        <input type="text" id="filter-engineer" placeholder="Nama Engineer..." class="p-3 text-sm bg-slate-50 border rounded-xl outline-none focus:ring-2 ring-yellow-400">
+                        <div class="grid grid-cols-2 gap-2 lg:col-span-2">
+                            <input type="date" id="filter-start" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none">
+                            <input type="date" id="filter-end" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none">
+                        </div>
                     </div>
                     <div class="flex gap-2 mt-4">
-                        <button onclick="applyFilters()" class="flex-1 bg-blue-600 text-white p-2 rounded-lg text-sm font-bold">Cari</button>
-                        <button onclick="exportFilteredExcel()" class="flex-1 bg-green-600 text-white p-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2">
-                            <span>📥</span> Excel
+                        <button onclick="applyFilters()" class="flex-1 bg-blue-600 text-white p-3 rounded-xl text-sm font-bold shadow-md hover:bg-blue-700">TERAPKAN FILTER</button>
+                        <button onclick="exportFilteredExcel()" class="bg-green-600 text-white px-6 rounded-xl text-sm font-bold shadow-md hover:bg-green-700 flex items-center gap-2 italic">
+                            <span>📥</span> EXCEL
                         </button>
                     </div>
                 </div>
 
-                <div id="maintenance-list" class="space-y-3">
-                    <div class="text-center py-10 text-slate-400">Memuat data...</div>
+                <!-- Info Pagination -->
+                <div id="pagination-info" class="text-xs font-bold text-slate-400 px-2 uppercase italic tracking-tighter">
+                    Menampilkan 0-0 dari 0 data
                 </div>
 
-                <div id="pagination-nav" class="flex justify-center items-center gap-2 pb-20"></div>
+                <!-- List Items -->
+                <div id="maintenance-list" class="space-y-4">
+                    <!-- Data will be injected here -->
+                </div>
+
+                <!-- Pagination Nav -->
+                <div id="pagination-nav" class="flex justify-center items-center gap-1 py-6 overflow-x-auto">
+                    <!-- Page buttons here -->
+                </div>
             </div>
 
             <!-- TAB: CHART (DASHBOARD) -->
             <div id="chart-tab" class="tab-content hidden space-y-6 pb-20">
-                <!-- Summary & Top Engineer -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Left: Basic Stats -->
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg">
-                                <p class="text-[10px] uppercase font-bold opacity-80">Total Pekerjaan</p>
-                                <h2 id="total-stats" class="text-3xl font-black">0</h2>
-                            </div>
-                            <div class="bg-yellow-400 text-blue-900 p-4 rounded-2xl shadow-lg">
-                                <p class="text-[10px] uppercase font-bold opacity-80">Aktif Hari Ini</p>
-                                <h2 id="today-stats" class="text-3xl font-black">0</h2>
-                            </div>
-                        </div>
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                <span>⚖️</span> Rasio JKT 5 vs JKT 6
-                            </h3>
-                            <div class="h-48 relative">
-                                <canvas id="pieChart"></canvas>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-600 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
+                        <div class="absolute -right-4 -bottom-4 text-white/10 text-8xl group-hover:scale-110 transition-transform">📋</div>
+                        <p class="text-[10px] uppercase font-bold opacity-70 italic">Total Pengerjaan</p>
+                        <h2 id="total-stats" class="text-4xl font-black italic">0</h2>
+                    </div>
+                    <div class="bg-yellow-400 text-blue-900 p-5 rounded-2xl shadow-lg relative overflow-hidden group">
+                        <div class="absolute -right-4 -bottom-4 text-blue-900/10 text-8xl group-hover:scale-110 transition-transform">⚡</div>
+                        <p class="text-[10px] uppercase font-bold opacity-70 italic">Update Hari Ini</p>
+                        <h2 id="today-stats" class="text-4xl font-black italic">0</h2>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 md:col-span-1">
+                        <h3 class="font-bold text-slate-800 text-xs mb-3 uppercase italic">🏆 Top 5 Produktif Engineer</h3>
+                        <div id="top-engineer-list" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1">
+                        <h3 class="font-bold text-slate-800 mb-4 text-center uppercase italic">Pencapaian Wilayah</h3>
+                        <div class="h-64 relative">
+                            <canvas id="pieChart"></canvas>
                         </div>
                     </div>
-
-                    <!-- Right: TOP 5 ENGINEERS -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                        <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <span>🏆</span> Top 5 Produktif Engineer
-                        </h3>
-                        <div id="top-engineer-list" class="flex-1 space-y-3">
-                            <!-- List will be populated by JS -->
-                            <div class="text-center py-10 text-slate-300 italic text-sm">Belum ada data...</div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2">
+                        <h3 class="font-bold text-blue-700 mb-4 uppercase italic">Jakarta 5 - Progress per Area</h3>
+                        <div class="h-64 relative">
+                            <canvas id="barChart5"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Jakarta 5 Chart -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-blue-700 mb-4 flex items-center gap-2">
-                        <span>🏢</span> Jakarta 5 - Detail per Branch
-                    </h3>
-                    <div class="h-64 relative">
-                        <canvas id="barChart5"></canvas>
-                    </div>
-                </div>
-
-                <!-- Jakarta 6 Chart -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-indigo-700 mb-4 flex items-center gap-2">
-                        <span>🏢</span> Jakarta 6 - Detail per Branch
-                    </h3>
+                    <h3 class="font-bold text-indigo-700 mb-4 uppercase italic">Jakarta 6 - Progress per Area</h3>
                     <div class="h-64 relative">
                         <canvas id="barChart6"></canvas>
                     </div>
@@ -278,9 +291,10 @@
         </main>
     </div>
 
-    <!-- Image Modal -->
-    <div id="image-modal" class="fixed inset-0 bg-black/90 hidden z-[100] flex flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
-        <img id="modal-content" src="" class="max-w-full max-h-[80vh] rounded shadow-2xl">
+    <!-- Modals -->
+    <div id="image-modal" class="fixed inset-0 bg-black/95 hidden z-[100] flex flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
+        <img id="modal-content" src="" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain">
+        <p class="text-white text-xs mt-4 font-bold bg-white/10 px-6 py-2 rounded-full uppercase italic">Ketuk dimana saja untuk menutup</p>
     </div>
 
     <script type="module">
@@ -300,13 +314,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'maintenance-jkt-56';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'maintenance-jkt-56-v2';
 
         let currentUser = null;
         let maintenanceData = [];
         let filteredData = [];
         let isEditing = false;
         let currentPhotos = { before: "", after: "" };
+
+        // PAGINATION STATE
         let currentPage = 1;
         let pageSize = 10;
 
@@ -330,13 +346,16 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             
             if (tabId === 'form-tab') document.getElementById('btn-form').classList.add('active');
-            else if (tabId === 'list-tab') document.getElementById('btn-list').classList.add('active');
+            else if (tabId === 'list-tab') {
+                document.getElementById('btn-list').classList.add('active');
+                renderList();
+            }
             else if (tabId === 'chart-tab') {
                 document.getElementById('btn-chart').classList.add('active');
                 renderCharts();
             }
 
-            if (window.innerWidth < 1024) toggleMenu();
+            if (window.innerWidth < 1024 && !sidebar.classList.contains('closed')) toggleMenu();
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -348,26 +367,6 @@
                 signInAnonymously(auth);
             }
         });
-
-        const getBase64 = (file) => new Promise((res, rej) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => res(reader.result);
-            reader.onerror = e => rej(e);
-        });
-
-        const handleImagePreview = async (input, previewId, emptyId) => {
-            if (input.files[0]) {
-                const b64 = await getBase64(input.files[0]);
-                const preview = document.getElementById(previewId);
-                preview.innerHTML = `<img src="${b64}" class="w-full h-full object-cover">`;
-                preview.classList.remove('hidden');
-                document.getElementById(emptyId).classList.add('hidden');
-            }
-        };
-
-        document.getElementById('photo-before').addEventListener('change', (e) => handleImagePreview(e.target, 'preview-before', 'empty-before'));
-        document.getElementById('photo-after').addEventListener('change', (e) => handleImagePreview(e.target, 'preview-after', 'empty-after'));
 
         function loadData() {
             if (!currentUser) return;
@@ -382,15 +381,11 @@
             });
         }
 
-        function updateStats() {
-            document.getElementById('total-stats').innerText = maintenanceData.length;
-            const todayStr = new Date().toISOString().split('T')[0];
-            const todayCount = maintenanceData.filter(item => {
-                if(!item.createdAt) return false;
-                return new Date(item.createdAt.seconds * 1000).toISOString().split('T')[0] === todayStr;
-            }).length;
-            document.getElementById('today-stats').innerText = todayCount;
-        }
+        window.updatePageSize = () => {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderList();
+        };
 
         window.applyFilters = () => {
             const fBranch = document.getElementById('filter-branch').value;
@@ -409,44 +404,104 @@
                 }
                 return matchB && matchE && matchD;
             });
+            currentPage = 1;
             renderList();
         };
 
+        window.goToPage = (page) => {
+            currentPage = page;
+            renderList();
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
         function renderList() {
-            const list = document.getElementById('maintenance-list');
-            list.innerHTML = '';
+            const listContainer = document.getElementById('maintenance-list');
+            const navContainer = document.getElementById('pagination-nav');
+            const infoContainer = document.getElementById('pagination-info');
+            
+            listContainer.innerHTML = '';
+            navContainer.innerHTML = '';
+
             if (filteredData.length === 0) {
-                list.innerHTML = '<div class="text-center py-10 text-slate-400 italic">Data tidak ditemukan.</div>';
+                listContainer.innerHTML = '<div class="text-center py-20 text-slate-400 italic font-bold">DATA TIDAK DITEMUKAN</div>';
+                infoContainer.innerText = "Menampilkan 0-0 dari 0 data";
                 return;
             }
 
-            filteredData.slice(0, 50).forEach(item => {
-                const date = item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('id-ID', {day:'2-digit', month:'short'}) : '-';
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
+            const totalData = filteredData.length;
+            const totalPages = Math.ceil(totalData / pageSize);
+            const startIdx = (currentPage - 1) * pageSize;
+            const endIdx = Math.min(startIdx + pageSize, totalData);
+            const pagedData = filteredData.slice(startIdx, endIdx);
+
+            infoContainer.innerText = `Menampilkan ${startIdx + 1}-${endIdx} dari ${totalData} data`;
+
+            pagedData.forEach(item => {
+                const date = item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}) : '-';
+                const div = document.createElement('div');
+                div.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200";
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
                         <div>
-                            <div class="flex gap-1 flex-wrap">
-                                <span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">${item.category}</span>
-                                <span class="text-[9px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded uppercase">DP: ${item.dpCode || '-'}</span>
+                            <div class="flex gap-2 flex-wrap mb-1">
+                                <span class="text-[9px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase italic">${item.category}</span>
+                                <span class="text-[9px] font-black text-purple-600 bg-purple-50 px-3 py-1 rounded-full uppercase italic">DP: ${item.dpCode || '-'}</span>
                             </div>
-                            <h4 class="font-bold text-slate-800 mt-1">${item.branch}</h4>
+                            <h4 class="font-black text-slate-800 uppercase italic">${item.branch}</h4>
                         </div>
-                        <span class="text-[9px] text-slate-400 font-medium">${date}</span>
+                        <span class="text-[10px] text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded italic">${date}</span>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-700">👤 ${item.picEngineer || 'Anonim'}</span>
+                    <div class="bg-slate-50 p-3 rounded-xl mb-4">
+                        <p class="text-xs text-slate-600 italic">"${item.description}"</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-blue-100 text-blue-600 flex items-center justify-center rounded-full text-xs font-black">👤</div>
+                            <span class="text-xs font-black text-slate-700 uppercase italic">${item.picEngineer}</span>
+                        </div>
                         <div class="flex gap-1">
-                            ${item.photoBefore ? `<button onclick="showImage('${item.photoBefore}')" class="text-[9px] bg-slate-100 px-2 py-1 rounded">Foto 1</button>` : ''}
-                            ${item.photoAfter ? `<button onclick="showImage('${item.photoAfter}')" class="text-[9px] bg-green-50 px-2 py-1 rounded">Foto 2</button>` : ''}
-                            <button onclick="startEdit('${item.id}')" class="p-1">✏️</button>
-                            <button onclick="deleteReport('${item.id}')" class="p-1">🗑️</button>
+                            ${item.photoBefore ? `<button onclick="showImage('${item.photoBefore}')" class="text-[9px] font-bold bg-slate-800 text-white px-3 py-1.5 rounded-lg italic">BEFORE</button>` : ''}
+                            ${item.photoAfter ? `<button onclick="showImage('${item.photoAfter}')" class="text-[9px] font-bold bg-green-600 text-white px-3 py-1.5 rounded-lg italic">AFTER</button>` : ''}
+                            <button onclick="startEdit('${item.id}')" class="p-2 hover:bg-blue-50 rounded-lg">✏️</button>
+                            <button onclick="deleteReport('${item.id}')" class="p-2 hover:bg-red-50 rounded-lg">🗑️</button>
                         </div>
                     </div>
                 `;
-                list.appendChild(card);
+                listContainer.appendChild(div);
             });
+
+            // Pagination Controls
+            if (totalPages > 1) {
+                const addBtn = (label, pg, active = false, disabled = false) => {
+                    const btn = document.createElement('button');
+                    btn.className = `min-w-[40px] h-10 px-3 rounded-xl text-xs font-black transition-all ${active ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 border border-slate-200'} ${disabled ? 'opacity-30 cursor-not-allowed' : 'hover:border-blue-400'}`;
+                    btn.innerText = label;
+                    if(!disabled) btn.onclick = () => goToPage(pg);
+                    navContainer.appendChild(btn);
+                };
+
+                addBtn('PREV', currentPage - 1, false, currentPage === 1);
+                
+                let startPage = Math.max(1, currentPage - 1);
+                let endPage = Math.min(totalPages, startPage + 2);
+                if (endPage - startPage < 2) startPage = Math.max(1, endPage - 2);
+
+                if (startPage > 1) {
+                    addBtn('1', 1);
+                    if (startPage > 2) navContainer.insertAdjacentHTML('beforeend', '<span class="px-1 text-slate-300">...</span>');
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    addBtn(i, i, i === currentPage);
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) navContainer.insertAdjacentHTML('beforeend', '<span class="px-1 text-slate-300">...</span>');
+                    addBtn(totalPages, totalPages);
+                }
+
+                addBtn('NEXT', currentPage + 1, false, currentPage === totalPages);
+            }
         }
 
         function renderCharts() {
@@ -458,49 +513,27 @@
             maintenanceData.forEach(item => {
                 branchCounts[item.branch] = (branchCounts[item.branch] || 0) + 1;
                 if(item.picEngineer) {
-                    const name = item.picEngineer.trim();
+                    const name = item.picEngineer.trim().toUpperCase();
                     engineerCounts[name] = (engineerCounts[name] || 0) + 1;
                 }
             });
 
-            // 1. Render Top Engineer List
-            const topEngineerContainer = document.getElementById('top-engineer-list');
-            topEngineerContainer.innerHTML = '';
-            const sortedEngineers = Object.entries(engineerCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
+            // Top Engineer List
+            const topContainer = document.getElementById('top-engineer-list');
+            topContainer.innerHTML = '';
+            const sorted = Object.entries(engineerCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            sorted.forEach(([name, count], i) => {
+                topContainer.innerHTML += `
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+                        <span class="text-[10px] font-black text-slate-700 italic">${i+1}. ${name}</span>
+                        <span class="text-[10px] font-black text-blue-600">${count} Lap.</span>
+                    </div>
+                `;
+            });
 
-            if(sortedEngineers.length === 0) {
-                topEngineerContainer.innerHTML = '<div class="text-center py-10 text-slate-300 italic text-sm">Belum ada data...</div>';
-            } else {
-                sortedEngineers.forEach(([name, count], index) => {
-                    const item = document.createElement('div');
-                    const medalColor = index === 0 ? 'bg-yellow-100 text-yellow-700' : (index === 1 ? 'bg-slate-100 text-slate-700' : (index === 2 ? 'bg-orange-100 text-orange-700' : 'bg-slate-50 text-slate-400'));
-                    const trophy = index === 0 ? '👑' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : '🔹'));
-                    
-                    item.className = "flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50";
-                    item.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${medalColor}">
-                                ${trophy}
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">${name}</p>
-                                <p class="text-[10px] text-slate-500 uppercase tracking-tighter">Maintenance Specialist</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-lg font-black text-blue-600">${count}</p>
-                            <p class="text-[8px] text-slate-400 font-bold uppercase">Laporan</p>
-                        </div>
-                    `;
-                    topEngineerContainer.appendChild(item);
-                });
-            }
-
-            // 2. Render Pie Chart (JKT 5 vs 6)
-            const totalJ5 = branchesJ5.reduce((acc, cur) => acc + (branchCounts[cur] || 0), 0);
-            const totalJ6 = branchesJ6.reduce((acc, cur) => acc + (branchCounts[cur] || 0), 0);
+            // Charts
+            const totalJ5 = branchesJ5.reduce((a, c) => a + (branchCounts[c] || 0), 0);
+            const totalJ6 = branchesJ6.reduce((a, c) => a + (branchCounts[c] || 0), 0);
 
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             if(pieChart) pieChart.destroy();
@@ -510,77 +543,77 @@
                     labels: ['Jakarta 5', 'Jakarta 6'],
                     datasets: [{
                         data: [totalJ5, totalJ6],
-                        backgroundColor: ['#2563eb', '#6366f1'],
-                        borderWidth: 4,
-                        borderColor: '#ffffff'
+                        backgroundColor: ['#1d4ed8', '#fbbf24'],
+                        borderWidth: 0
                     }]
                 },
-                options: {
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => {
-                                    const total = totalJ5 + totalJ6;
-                                    const perc = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                                    return `${ctx.label}: ${ctx.raw} (${perc}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
+                options: { maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 } } } } }
             });
 
-            // 3. Bar Charts
-            const renderBar = (ctxId, labels, data, color) => {
-                const ctx = document.getElementById(ctxId).getContext('2d');
-                return new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels.map(l => l.split(' - ')[1]),
-                        datasets: [{ data, backgroundColor: color, borderRadius: 6 }]
-                    },
-                    options: { 
-                        maintainAspectRatio: false, 
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }, x: { ticks: { font: { size: 9 } } } }
-                    }
-                });
-            };
-
+            const bar5Ctx = document.getElementById('barChart5').getContext('2d');
             if(barChart5) barChart5.destroy();
-            barChart5 = renderBar('barChart5', branchesJ5, branchesJ5.map(b => branchCounts[b] || 0), '#3b82f6');
+            barChart5 = new Chart(bar5Ctx, {
+                type: 'bar',
+                data: {
+                    labels: branchesJ5.map(l => l.split(' - ')[1]),
+                    datasets: [{ label: 'Progress', data: branchesJ5.map(b => branchCounts[b] || 0), backgroundColor: '#3b82f6', borderRadius: 8 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
 
+            const bar6Ctx = document.getElementById('barChart6').getContext('2d');
             if(barChart6) barChart6.destroy();
-            barChart6 = renderBar('barChart6', branchesJ6, branchesJ6.map(b => branchCounts[b] || 0), '#818cf8');
+            barChart6 = new Chart(bar6Ctx, {
+                type: 'bar',
+                data: {
+                    labels: branchesJ6.map(l => l.split(' - ')[1]),
+                    datasets: [{ label: 'Progress', data: branchesJ6.map(b => branchCounts[b] || 0), backgroundColor: '#818cf8', borderRadius: 8 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
         }
 
-        // CRUD Actions
-        window.deleteReport = async (id) => {
-            if (confirm("Hapus data?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports', id));
+        function updateStats() {
+            document.getElementById('total-stats').innerText = maintenanceData.length;
+            const today = new Date().toISOString().split('T')[0];
+            const tCount = maintenanceData.filter(i => i.createdAt && new Date(i.createdAt.seconds*1000).toISOString().split('T')[0] === today).length;
+            document.getElementById('today-stats').innerText = tCount;
+        }
+
+        const getBase64 = (file) => new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => res(reader.result);
+            reader.onerror = e => rej(e);
+        });
+
+        const handleImagePreview = async (input, previewId, emptyId) => {
+            if (input.files[0]) {
+                const b64 = await getBase64(input.files[0]);
+                const prev = document.getElementById(previewId);
+                prev.innerHTML = `<img src="${b64}" class="w-full h-full object-cover">`;
+                prev.classList.remove('hidden');
+                document.getElementById(emptyId).classList.add('hidden');
+            }
         };
 
-        window.showImage = (src) => {
-            document.getElementById('modal-content').src = src;
-            document.getElementById('image-modal').classList.remove('hidden');
-        };
-
-        document.getElementById('image-modal').onclick = () => document.getElementById('image-modal').classList.add('hidden');
+        document.getElementById('photo-before').addEventListener('change', (e) => handleImagePreview(e.target, 'preview-before', 'empty-before'));
+        document.getElementById('photo-after').addEventListener('change', (e) => handleImagePreview(e.target, 'preview-after', 'empty-after'));
 
         document.getElementById('maintenance-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
-            btn.disabled = true; btn.innerText = "Simpan...";
+            btn.disabled = true; btn.innerText = "SEDANG MENYIMPAN...";
+
             const payload = {
                 branch: document.getElementById('branch').value,
                 category: document.getElementById('category').value,
                 dpCode: document.getElementById('dp-code').value,
-                picEngineer: document.getElementById('pic-engineer').value,
+                picEngineer: document.getElementById('pic-engineer').value.toUpperCase(),
                 description: document.getElementById('description').value,
                 userId: currentUser.uid
             };
+
             const fBefore = document.getElementById('photo-before').files[0];
             const fAfter = document.getElementById('photo-after').files[0];
             payload.photoBefore = fBefore ? await getBase64(fBefore) : (isEditing ? currentPhotos.before : "");
@@ -590,8 +623,8 @@
                 if(isEditing) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports', document.getElementById('edit-id').value), { ...payload, updatedAt: serverTimestamp() });
                 else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports'), { ...payload, createdAt: serverTimestamp() });
                 resetForm(); switchTab('list-tab');
-            } catch (e) { console.error(e); }
-            btn.disabled = false; btn.innerText = "Simpan Laporan";
+            } catch (err) { console.error(err); }
+            btn.disabled = false; btn.innerText = "SIMPAN DATA";
         });
 
         window.startEdit = (id) => {
@@ -605,7 +638,7 @@
             document.getElementById('pic-engineer').value = item.picEngineer;
             document.getElementById('description').value = item.description;
             currentPhotos = { before: item.photoBefore || "", after: item.photoAfter || "" };
-            document.getElementById('form-title').innerText = "✏️ Edit Laporan";
+            document.getElementById('form-title').innerText = "✏️ EDIT LAPORAN";
             document.getElementById('cancel-edit').classList.remove('hidden');
             switchTab('form-tab');
         };
@@ -613,7 +646,7 @@
         const resetForm = () => {
             isEditing = false;
             document.getElementById('maintenance-form').reset();
-            document.getElementById('form-title').innerText = "📝 Laporan Baru";
+            document.getElementById('form-title').innerText = "📝 LAPORAN BARU";
             document.getElementById('cancel-edit').classList.add('hidden');
             document.getElementById('preview-before').classList.add('hidden');
             document.getElementById('preview-after').classList.add('hidden');
@@ -623,12 +656,28 @@
 
         document.getElementById('cancel-edit').onclick = resetForm;
 
+        window.deleteReport = async (id) => {
+            if (confirm("Hapus data laporan ini?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports', id));
+        };
+
+        window.showImage = (src) => {
+            document.getElementById('modal-content').src = src;
+            document.getElementById('image-modal').classList.remove('hidden');
+        };
+
         window.exportFilteredExcel = () => {
-            const data = filteredData.map(i => ({ Tgl: i.createdAt ? new Date(i.createdAt.seconds*1000).toLocaleDateString() : '', Branch: i.branch, DP: i.dpCode, Engineer: i.picEngineer, Kategori: i.category, Deskripsi: i.description }));
+            const data = filteredData.map(i => ({
+                Tanggal: i.createdAt ? new Date(i.createdAt.seconds*1000).toLocaleDateString() : '',
+                Branch: i.branch,
+                Engineer: i.picEngineer,
+                Kategori: i.category,
+                DP: i.dpCode,
+                Hasil: i.description
+            }));
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Maintenance");
-            XLSX.writeFile(wb, "Report_Maintenance.xlsx");
+            XLSX.writeFile(wb, "Maintenance_Report_JKT.xlsx");
         };
     </script>
 </body>
