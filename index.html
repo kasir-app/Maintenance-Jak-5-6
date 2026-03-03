@@ -201,9 +201,31 @@
                     </div>
                 </div>
 
+                <!-- Pagination Control Top -->
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Tampil:</label>
+                        <select id="page-size" onchange="changePageSize()" class="text-sm border rounded p-1 outline-none">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div id="pagination-info" class="text-xs text-slate-500 font-medium">
+                        Menampilkan 0 dari 0 data
+                    </div>
+                </div>
+
                 <!-- List Items (Mobile Cards) -->
-                <div id="maintenance-list" class="space-y-3 pb-20">
+                <div id="maintenance-list" class="space-y-3">
                     <div class="text-center py-10 text-slate-400">Memuat data...</div>
+                </div>
+
+                <!-- Pagination Navigation -->
+                <div id="pagination-nav" class="flex justify-center items-center gap-2 pb-20">
+                    <!-- Tombol navigasi akan dirender di sini -->
                 </div>
             </div>
         </main>
@@ -239,6 +261,10 @@
         let filteredData = [];
         let isEditing = false;
         let currentPhotos = { before: "", after: "" };
+
+        // Pagination State
+        let currentPage = 1;
+        let pageSize = 10;
 
         // Sidebar Control
         const sidebar = document.getElementById('sidebar');
@@ -297,17 +323,15 @@
 
         function loadData() {
             if (!currentUser) return;
-            // Rule 1: Use strict paths
             const dataRef = collection(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports');
             onSnapshot(dataRef, (snapshot) => {
                 maintenanceData = [];
                 snapshot.forEach((doc) => maintenanceData.push({ id: doc.id, ...doc.data() }));
-                // Sort in memory (Rule 2: avoid complex queries)
                 maintenanceData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
                 applyFilters();
             }, (error) => {
                 console.error("Firestore error:", error);
-                showToast("Ralat memuatkan data", true);
+                showToast("Gagal memuat data", true);
             });
         }
 
@@ -328,19 +352,47 @@
                 }
                 return matchB && matchE && matchD;
             });
+            
+            currentPage = 1; // Reset ke halaman pertama saat filter berubah
             renderList();
+        };
+
+        window.changePageSize = () => {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderList();
+        };
+
+        window.goToPage = (page) => {
+            currentPage = page;
+            renderList();
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         function renderList() {
             const list = document.getElementById('maintenance-list');
+            const nav = document.getElementById('pagination-nav');
+            const info = document.getElementById('pagination-info');
+            
             list.innerHTML = '';
+            nav.innerHTML = '';
 
             if (filteredData.length === 0) {
-                list.innerHTML = '<div class="text-center py-10 text-slate-400 italic">Data tidak dijumpai.</div>';
+                list.innerHTML = '<div class="text-center py-10 text-slate-400 italic">Data tidak ditemukan.</div>';
+                info.innerText = "Menampilkan 0 dari 0 data";
                 return;
             }
 
-            filteredData.forEach(item => {
+            // Paging logic
+            const totalData = filteredData.length;
+            const totalPages = Math.ceil(totalData / pageSize);
+            const startIdx = (currentPage - 1) * pageSize;
+            const endIdx = Math.min(startIdx + pageSize, totalData);
+            const pagedData = filteredData.slice(startIdx, endIdx);
+
+            info.innerText = `Menampilkan ${startIdx + 1}-${endIdx} dari ${totalData} data`;
+
+            pagedData.forEach(item => {
                 const date = item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}) : '-';
                 const card = document.createElement('div');
                 card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200";
@@ -368,18 +420,48 @@
                 `;
                 list.appendChild(card);
             });
+
+            // Render Pagination Nav
+            if (totalPages > 1) {
+                // Prev button
+                const btnPrev = document.createElement('button');
+                btnPrev.className = `p-2 rounded-lg text-xs font-bold ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'bg-white text-blue-600 shadow-sm'}`;
+                btnPrev.innerText = "«";
+                if (currentPage > 1) btnPrev.onclick = () => goToPage(currentPage - 1);
+                nav.appendChild(btnPrev);
+
+                // Page numbers (Limit displayed pages)
+                let startPage = Math.max(1, currentPage - 1);
+                let endPage = Math.min(totalPages, startPage + 2);
+                if (endPage - startPage < 2) startPage = Math.max(1, endPage - 2);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = `w-8 h-8 rounded-lg text-xs font-bold shadow-sm transition-all ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'}`;
+                    btn.innerText = i;
+                    btn.onclick = () => goToPage(i);
+                    nav.appendChild(btn);
+                }
+
+                // Next button
+                const btnNext = document.createElement('button');
+                btnNext.className = `p-2 rounded-lg text-xs font-bold ${currentPage === totalPages ? 'text-slate-300 cursor-not-allowed' : 'bg-white text-blue-600 shadow-sm'}`;
+                btnNext.innerText = "»";
+                if (currentPage < totalPages) btnNext.onclick = () => goToPage(currentPage + 1);
+                nav.appendChild(btnNext);
+            }
         }
 
-        // Register global functions for onclick events in modules
         window.deleteReport = async (id) => {
-            if (confirm("Adakah anda pasti ingin memadamkan data ini?")) {
+            const modalConfirm = confirm("Apakah anda yakin ingin menghapus data ini?");
+            if (modalConfirm) {
                 try {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports', id);
                     await deleteDoc(docRef);
-                    showToast("Laporan berjaya dipadamkan");
+                    showToast("Laporan berhasil dihapus");
                 } catch (err) {
                     console.error("Delete error:", err);
-                    showToast("Gagal memadam laporan", true);
+                    showToast("Gagal menghapus laporan", true);
                 }
             }
         };
@@ -449,18 +531,18 @@
                     await updateDoc(docRef, {
                         branch, category, picEngineer, description, photoBefore: pB, photoAfter: pA, updatedAt: serverTimestamp()
                     });
-                    showToast("Berjaya dikemas kini!");
+                    showToast("Berhasil diperbarui!");
                 } else {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports'), {
                         branch, category, picEngineer, description, photoBefore: pB, photoAfter: pA, userId: currentUser.uid, createdAt: serverTimestamp()
                     });
-                    showToast("Laporan berjaya dihantar!");
+                    showToast("Laporan berhasil dikirim!");
                 }
                 resetForm();
                 switchTab('list-tab');
             } catch (err) {
                 console.error("Save error:", err);
-                showToast("Ralat Sistem", true);
+                showToast("Kesalahan Sistem", true);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = isEditing ? "Kemas Kini Laporan" : "Simpan Laporan";
@@ -483,12 +565,11 @@
 
         const showToast = (msg, err = false) => {
             const t = document.createElement('div');
-            t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 ${err ? 'bg-red-500' : 'bg-slate-800'} text-white px-6 py-3 rounded-full shadow-2xl z-[200] text-sm font-bold whitespace-nowrap`;
+            t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 ${err ? 'bg-red-500' : 'bg-slate-800'} text-white px-6 py-3 rounded-full shadow-2xl z-[200] text-sm font-bold whitespace-nowrap opacity-100 transition-opacity`;
             t.innerText = msg;
             document.body.appendChild(t);
             setTimeout(() => {
                 t.style.opacity = '0';
-                t.style.transition = 'opacity 0.5s';
                 setTimeout(() => t.remove(), 500);
             }, 2000);
         };
@@ -496,7 +577,7 @@
         window.exportFilteredExcel = () => {
             if (filteredData.length === 0) return;
             const exportData = filteredData.map(item => ({
-                'TARIKH': item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleString('id-ID') : '-',
+                'TANGGAL': item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleString('id-ID') : '-',
                 'BRANCH': item.branch,
                 'ENGINEER': item.picEngineer || '-',
                 'KATEGORI': item.category,
