@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Jakarta 5&6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #fbbf24;
+            --secondary: #1e40af;
+        }
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+            z-index: 50;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .overlay {
+            display: none;
+            z-index: 40;
+        }
+        .overlay.active {
+            display: block;
+        }
+        .nav-link.active {
+            background-color: var(--primary);
+            color: #1e40af;
+            font-weight: bold;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Mobile Top Header -->
+    <header class="bg-yellow-400 text-blue-900 p-4 flex items-center justify-between shadow-md shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="menu-toggle" class="p-2 hover:bg-yellow-500 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <h1 class="font-bold italic text-lg truncate">MAINTENANCE JKT 5&6</h1>
+        </div>
+        <div id="auth-status" class="text-[10px] bg-white/40 px-2 py-1 rounded font-mono">...</div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+        <!-- Overlay for Mobile Sidebar -->
+        <div id="sidebar-overlay" class="overlay fixed inset-0 bg-black/50"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar fixed lg:static inset-y-0 left-0 w-64 bg-blue-900 text-white flex flex-col closed lg:transform-none shadow-2xl">
+            <div class="p-6 border-b border-blue-800">
+                <p class="text-xs text-blue-300 uppercase tracking-widest font-bold">Menu Utama</p>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <button onclick="switchTab('form-tab')" id="btn-form" class="nav-link active w-full flex items-center gap-3 p-3 rounded-xl transition-all">
+                    <span>📝</span> <span>Input Laporan</span>
+                </button>
+                <button onclick="switchTab('list-tab')" id="btn-list" class="nav-link w-full flex items-center gap-3 p-3 rounded-xl transition-all">
+                    <span>📋</span> <span>Data Maintenance</span>
+                </button>
+            </nav>
+            <div class="p-6 bg-blue-950 text-[10px] text-blue-400">
+                &copy; 2024 Maintenance System v2.0
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50">
+            
+            <!-- TAB: FORM INPUT -->
+            <div id="form-tab" class="tab-content max-w-2xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-blue-600 p-4 flex justify-between items-center text-white">
+                        <h2 id="form-title" class="font-bold flex items-center gap-2">📝 Laporan Baru</h2>
+                        <button id="cancel-edit" class="hidden text-xs bg-red-500 px-2 py-1 rounded hover:bg-red-600">Batal Edit</button>
+                    </div>
+                    
+                    <form id="maintenance-form" class="p-6 space-y-5">
+                        <input type="hidden" id="edit-id">
+                        
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Branch</label>
+                                <select id="branch" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 ring-yellow-400 outline-none transition-all" required>
+                                    <option value="">Pilih Branch</option>
+                                    <optgroup label="JAKARTA 5">
+                                        <option value="Jakarta 5 - Ciracas">Ciracas</option>
+                                        <option value="Jakarta 5 - Cawang">Cawang</option>
+                                        <option value="Jakarta 5 - Duren Sawit">Duren Sawit</option>
+                                        <option value="Jakarta 5 - Rawamangun">Rawamangun</option>
+                                        <option value="Jakarta 5 - Ujung Menteng">Ujung Menteng</option>
+                                        <option value="Jakarta 5 - Pondok Kopi">Pondok Kopi</option>
+                                    </optgroup>
+                                    <optgroup label="JAKARTA 6">
+                                        <option value="Jakarta 6 - Sunter">Sunter</option>
+                                        <option value="Jakarta 6 - Pademangan">Pademangan</option>
+                                        <option value="Jakarta 6 - Pluit">Pluit</option>
+                                        <option value="Jakarta 6 - Kelapa Gading">Kelapa Gading</option>
+                                        <option value="Jakarta 6 - Tanjung Priok">Tanjung Priok</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Kategori</label>
+                                <select id="category" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 ring-yellow-400 outline-none transition-all" required>
+                                    <option value="">Pilih Kategori</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Patroli Perangkat Distribusi">Patroli</option>
+                                    <option value="Preventive DP">Preventive DP</option>
+                                    <option value="Optional">Optional</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Nama Engineer</label>
+                                <input type="text" id="pic-engineer" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Nama lengkap..." required>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Deskripsi Pekerjaan</label>
+                                <textarea id="description" rows="3" class="w-full mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400" placeholder="Detail pekerjaan..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 pt-2">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-blue-600 uppercase">Foto Sebelum</label>
+                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all overflow-hidden" id="label-before">
+                                    <div class="flex flex-col items-center justify-center pt-2" id="empty-before">
+                                        <span class="text-xl">📸</span>
+                                    </div>
+                                    <input type="file" id="photo-before" accept="image/*" class="hidden">
+                                    <div id="preview-before" class="w-full h-full hidden"></div>
+                                </label>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-green-600 uppercase">Foto Selepas</label>
+                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all overflow-hidden" id="label-after">
+                                    <div class="flex flex-col items-center justify-center pt-2" id="empty-after">
+                                        <span class="text-xl">📸</span>
+                                    </div>
+                                    <input type="file" id="photo-after" accept="image/*" class="hidden">
+                                    <div id="preview-after" class="w-full h-full hidden"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95">
+                            Simpan Laporan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB: DATA LIST -->
+            <div id="list-tab" class="tab-content hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">🔍 Tapis Data</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <select id="filter-branch" class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
+                            <option value="All">Semua Branch</option>
+                            <option value="Jakarta 5 - Ciracas">Ciracas</option>
+                            <option value="Jakarta 5 - Cawang">Cawang</option>
+                            <option value="Jakarta 5 - Duren Sawit">Duren Sawit</option>
+                            <option value="Jakarta 5 - Rawamangun">Rawamangun</option>
+                            <option value="Jakarta 5 - Ujung Menteng">Ujung Menteng</option>
+                            <option value="Jakarta 5 - Pondok Kopi">Pondok Kopi</option>
+                            <option value="Jakarta 6 - Sunter">Sunter</option>
+                            <option value="Jakarta 6 - Pademangan">Pademangan</option>
+                            <option value="Jakarta 6 - Pluit">Pluit</option>
+                            <option value="Jakarta 6 - Kelapa Gading">Kelapa Gading</option>
+                            <option value="Jakarta 6 - Tanjung Priok">Tanjung Priok</option>
+                        </select>
+                        <input type="text" id="filter-engineer" placeholder="Nama Engineer..." class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
+                        <input type="date" id="filter-start" class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
+                        <input type="date" id="filter-end" class="p-2 text-sm bg-slate-50 border rounded-lg outline-none">
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="applyFilters()" class="flex-1 bg-blue-600 text-white p-2 rounded-lg text-sm font-bold">Cari</button>
+                        <button onclick="exportFilteredExcel()" class="flex-1 bg-green-600 text-white p-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2">
+                            <span>📥</span> Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- List Items (Mobile Cards) -->
+                <div id="maintenance-list" class="space-y-3 pb-20">
+                    <div class="text-center py-10 text-slate-400">Memuat data...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="image-modal" class="fixed inset-0 bg-black/90 hidden z-[100] flex flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
+        <img id="modal-content" src="" class="max-w-full max-h-[80vh] rounded shadow-2xl">
+        <p class="text-white mt-4 text-sm bg-white/10 px-4 py-2 rounded-full">Klik di mana saja untuk tutup</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxhqiPz2CbxyscKcbMGhqrE4CnttWp-d0",
+            authDomain: "laporan-ticket.firebaseapp.com",
+            projectId: "laporan-ticket",
+            storageBucket: "laporan-ticket.firebasestorage.app",
+            messagingSenderId: "507199711392",
+            appId: "1:507199711392:web:20678a32781e7208c5c1c5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'maintenance-jkt-56';
+
+        let currentUser = null;
+        let maintenanceData = [];
+        let filteredData = [];
+        let isEditing = false;
+        let currentPhotos = { before: "", after: "" };
+
+        // Sidebar Control
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const menuBtn = document.getElementById('menu-toggle');
+
+        const toggleMenu = () => {
+            sidebar.classList.toggle('closed');
+            overlay.classList.toggle('active');
+        };
+
+        menuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Tab System
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if (tabId === 'form-tab') document.getElementById('btn-form').classList.add('active');
+            else document.getElementById('btn-list').classList.add('active');
+
+            if (window.innerWidth < 1024) toggleMenu();
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-status').innerText = "ID: " + user.uid.substring(0, 5);
+                loadData();
+            } else {
+                signInAnonymously(auth);
+            }
+        });
+
+        const getBase64 = (file) => new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => res(reader.result);
+            reader.onerror = e => rej(e);
+        });
+
+        const handleImagePreview = async (input, previewId, emptyId) => {
+            if (input.files[0]) {
+                const b64 = await getBase64(input.files[0]);
+                const preview = document.getElementById(previewId);
+                preview.innerHTML = `<img src="${b64}" class="w-full h-full object-cover">`;
+                preview.classList.remove('hidden');
+                document.getElementById(emptyId).classList.add('hidden');
+            }
+        };
+
+        document.getElementById('photo-before').addEventListener('change', (e) => handleImagePreview(e.target, 'preview-before', 'empty-before'));
+        document.getElementById('photo-after').addEventListener('change', (e) => handleImagePreview(e.target, 'preview-after', 'empty-after'));
+
+        function loadData() {
+            if (!currentUser) return;
+            // Rule 1: Use strict paths
+            const dataRef = collection(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports');
+            onSnapshot(dataRef, (snapshot) => {
+                maintenanceData = [];
+                snapshot.forEach((doc) => maintenanceData.push({ id: doc.id, ...doc.data() }));
+                // Sort in memory (Rule 2: avoid complex queries)
+                maintenanceData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                applyFilters();
+            }, (error) => {
+                console.error("Firestore error:", error);
+                showToast("Ralat memuatkan data", true);
+            });
+        }
+
+        window.applyFilters = () => {
+            const fBranch = document.getElementById('filter-branch').value;
+            const fEngineer = document.getElementById('filter-engineer').value.toLowerCase();
+            const fStart = document.getElementById('filter-start').value;
+            const fEnd = document.getElementById('filter-end').value;
+
+            filteredData = maintenanceData.filter(item => {
+                const matchB = fBranch === "All" || item.branch === fBranch;
+                const matchE = !fEngineer || (item.picEngineer && item.picEngineer.toLowerCase().includes(fEngineer));
+                let matchD = true;
+                if (item.createdAt) {
+                    const iDate = new Date(item.createdAt.seconds * 1000).toISOString().split('T')[0];
+                    if (fStart && iDate < fStart) matchD = false;
+                    if (fEnd && iDate > fEnd) matchD = false;
+                }
+                return matchB && matchE && matchD;
+            });
+            renderList();
+        };
+
+        function renderList() {
+            const list = document.getElementById('maintenance-list');
+            list.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                list.innerHTML = '<div class="text-center py-10 text-slate-400 italic">Data tidak dijumpai.</div>';
+                return;
+            }
+
+            filteredData.forEach(item => {
+                const date = item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}) : '-';
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase tracking-wider">${item.category}</span>
+                            <h4 class="font-bold text-slate-800 mt-1">${item.branch}</h4>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-medium">${date}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3 bg-slate-50 p-2 rounded-lg italic">"${item.description}"</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 bg-yellow-100 flex items-center justify-center rounded-full text-[10px]">👤</div>
+                            <span class="text-xs font-bold text-slate-700">${item.picEngineer || 'Anonim'}</span>
+                        </div>
+                        <div class="flex gap-1">
+                            ${item.photoBefore ? `<button onclick="showImage('${item.photoBefore}')" class="text-[9px] bg-slate-100 hover:bg-slate-200 border px-2 py-1 rounded-lg">Sebelum</button>` : ''}
+                            ${item.photoAfter ? `<button onclick="showImage('${item.photoAfter}')" class="text-[9px] bg-green-50 hover:bg-green-100 border border-green-200 px-2 py-1 rounded-lg">Selepas</button>` : ''}
+                            <button onclick="startEdit('${item.id}')" class="p-1 hover:bg-blue-50 rounded ml-2">✏️</button>
+                            <button onclick="deleteReport('${item.id}')" class="p-1 hover:bg-red-50 rounded">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Register global functions for onclick events in modules
+        window.deleteReport = async (id) => {
+            if (confirm("Adakah anda pasti ingin memadamkan data ini?")) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports', id);
+                    await deleteDoc(docRef);
+                    showToast("Laporan berjaya dipadamkan");
+                } catch (err) {
+                    console.error("Delete error:", err);
+                    showToast("Gagal memadam laporan", true);
+                }
+            }
+        };
+
+        window.startEdit = (id) => {
+            const item = maintenanceData.find(d => d.id === id);
+            if (!item) return;
+            isEditing = true;
+            document.getElementById('edit-id').value = id;
+            document.getElementById('branch').value = item.branch;
+            document.getElementById('category').value = item.category;
+            document.getElementById('pic-engineer').value = item.picEngineer;
+            document.getElementById('description').value = item.description;
+            currentPhotos = { before: item.photoBefore || "", after: item.photoAfter || "" };
+            
+            document.getElementById('form-title').innerText = "✏️ Kemas Kini Laporan";
+            document.getElementById('submit-btn').innerText = "Kemas Kini Laporan";
+            document.getElementById('cancel-edit').classList.remove('hidden');
+            
+            if(item.photoBefore) {
+                document.getElementById('preview-before').innerHTML = `<img src="${item.photoBefore}" class="w-full h-full object-cover">`;
+                document.getElementById('preview-before').classList.remove('hidden');
+                document.getElementById('empty-before').classList.add('hidden');
+            } else {
+                document.getElementById('preview-before').classList.add('hidden');
+                document.getElementById('empty-before').classList.remove('hidden');
+            }
+
+            if(item.photoAfter) {
+                document.getElementById('preview-after').innerHTML = `<img src="${item.photoAfter}" class="w-full h-full object-cover">`;
+                document.getElementById('preview-after').classList.remove('hidden');
+                document.getElementById('empty-after').classList.add('hidden');
+            } else {
+                document.getElementById('preview-after').classList.add('hidden');
+                document.getElementById('empty-after').classList.remove('hidden');
+            }
+            switchTab('form-tab');
+        };
+
+        window.showImage = (src) => {
+            const modal = document.getElementById('image-modal');
+            document.getElementById('modal-content').src = src;
+            modal.classList.remove('hidden');
+        };
+
+        document.getElementById('maintenance-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Memproses...";
+
+            const branch = document.getElementById('branch').value;
+            const category = document.getElementById('category').value;
+            const picEngineer = document.getElementById('pic-engineer').value;
+            const description = document.getElementById('description').value;
+            const editId = document.getElementById('edit-id').value;
+            
+            const fileB = document.getElementById('photo-before').files[0];
+            const fileA = document.getElementById('photo-after').files[0];
+
+            let pB = fileB ? await getBase64(fileB) : (isEditing ? currentPhotos.before : "");
+            let pA = fileA ? await getBase64(fileA) : (isEditing ? currentPhotos.after : "");
+
+            try {
+                if (isEditing && editId) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports', editId);
+                    await updateDoc(docRef, {
+                        branch, category, picEngineer, description, photoBefore: pB, photoAfter: pA, updatedAt: serverTimestamp()
+                    });
+                    showToast("Berjaya dikemas kini!");
+                } else {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'maintenance_reports'), {
+                        branch, category, picEngineer, description, photoBefore: pB, photoAfter: pA, userId: currentUser.uid, createdAt: serverTimestamp()
+                    });
+                    showToast("Laporan berjaya dihantar!");
+                }
+                resetForm();
+                switchTab('list-tab');
+            } catch (err) {
+                console.error("Save error:", err);
+                showToast("Ralat Sistem", true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = isEditing ? "Kemas Kini Laporan" : "Simpan Laporan";
+            }
+        });
+
+        const resetForm = () => {
+            isEditing = false;
+            document.getElementById('maintenance-form').reset();
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-title').innerText = "📝 Laporan Baru";
+            document.getElementById('cancel-edit').classList.add('hidden');
+            document.getElementById('preview-before').classList.add('hidden');
+            document.getElementById('preview-after').classList.add('hidden');
+            document.getElementById('empty-before').classList.remove('hidden');
+            document.getElementById('empty-after').classList.remove('hidden');
+        };
+
+        document.getElementById('cancel-edit').addEventListener('click', resetForm);
+
+        const showToast = (msg, err = false) => {
+            const t = document.createElement('div');
+            t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 ${err ? 'bg-red-500' : 'bg-slate-800'} text-white px-6 py-3 rounded-full shadow-2xl z-[200] text-sm font-bold whitespace-nowrap`;
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transition = 'opacity 0.5s';
+                setTimeout(() => t.remove(), 500);
+            }, 2000);
+        };
+
+        window.exportFilteredExcel = () => {
+            if (filteredData.length === 0) return;
+            const exportData = filteredData.map(item => ({
+                'TARIKH': item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleString('id-ID') : '-',
+                'BRANCH': item.branch,
+                'ENGINEER': item.picEngineer || '-',
+                'KATEGORI': item.category,
+                'DESKRIPSI': item.description
+            }));
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Maintenance");
+            XLSX.writeFile(wb, `Laporan_Maintenance_${new Date().toISOString().split('T')[0]}.xlsx`);
+        };
+    </script>
+</body>
+</html>
