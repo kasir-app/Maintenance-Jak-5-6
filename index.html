@@ -181,7 +181,7 @@
                 </div>
             </div>
 
-            <!-- TAB: DATA LIST (PAGINATION INCLUDED) -->
+            <!-- TAB: DATA LIST -->
             <div id="list-tab" class="tab-content hidden space-y-4">
                 <!-- Filter Section -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
@@ -198,8 +198,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <select id="filter-branch" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none focus:ring-2 ring-yellow-400">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <!-- Search All -->
+                        <div class="lg:col-span-2">
+                             <input type="text" id="filter-search" onkeyup="applyFilters()" placeholder="Cari Kode DP, Engineer, atau Keterangan..." class="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-yellow-400">
+                        </div>
+                        
+                        <!-- Filter Branch -->
+                        <select id="filter-branch" onchange="applyFilters()" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none focus:ring-2 ring-yellow-400">
                             <option value="All">Semua Branch</option>
                             <optgroup label="JAKARTA 5">
                                 <option value="Jakarta 5 - Ciracas">Ciracas</option>
@@ -217,14 +223,24 @@
                                 <option value="Jakarta 6 - Tanjung Priok">Tanjung Priok</option>
                             </optgroup>
                         </select>
-                        <input type="text" id="filter-engineer" placeholder="Nama Engineer..." class="p-3 text-sm bg-slate-50 border rounded-xl outline-none focus:ring-2 ring-yellow-400">
-                        <div class="grid grid-cols-2 gap-2 lg:col-span-2">
-                            <input type="date" id="filter-start" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none">
-                            <input type="date" id="filter-end" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none">
+
+                        <!-- Filter Kategori -->
+                        <select id="filter-category" onchange="applyFilters()" class="p-3 text-sm bg-slate-50 border rounded-xl outline-none focus:ring-2 ring-yellow-400">
+                            <option value="All">Semua Kategori</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Patroli Perangkat Distribusi">Patroli</option>
+                            <option value="Preventive DP">Preventive DP</option>
+                            <option value="Optional">Optional</option>
+                        </select>
+
+                        <!-- Date Ranges -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="date" id="filter-start" onchange="applyFilters()" class="p-3 text-xs bg-slate-50 border rounded-xl outline-none">
+                            <input type="date" id="filter-end" onchange="applyFilters()" class="p-3 text-xs bg-slate-50 border rounded-xl outline-none">
                         </div>
                     </div>
                     <div class="flex gap-2 mt-4">
-                        <button onclick="applyFilters()" class="flex-1 bg-blue-600 text-white p-3 rounded-xl text-sm font-bold shadow-md hover:bg-blue-700">TERAPKAN FILTER</button>
+                        <button onclick="applyFilters()" class="flex-1 bg-blue-600 text-white p-3 rounded-xl text-sm font-bold shadow-md hover:bg-blue-700">REFRESH DATA</button>
                         <button onclick="exportFilteredExcel()" class="bg-green-600 text-white px-6 rounded-xl text-sm font-bold shadow-md hover:bg-green-700 flex items-center gap-2 italic">
                             <span>📥</span> EXCEL
                         </button>
@@ -388,21 +404,30 @@
         };
 
         window.applyFilters = () => {
+            const fSearch = document.getElementById('filter-search').value.toLowerCase();
             const fBranch = document.getElementById('filter-branch').value;
-            const fEngineer = document.getElementById('filter-engineer').value.toLowerCase();
+            const fCategory = document.getElementById('filter-category').value;
             const fStart = document.getElementById('filter-start').value;
             const fEnd = document.getElementById('filter-end').value;
 
             filteredData = maintenanceData.filter(item => {
+                // Pencarian Umum (DP, Engineer, Deskripsi)
+                const matchS = !fSearch || 
+                              (item.dpCode && item.dpCode.toLowerCase().includes(fSearch)) || 
+                              (item.picEngineer && item.picEngineer.toLowerCase().includes(fSearch)) || 
+                              (item.description && item.description.toLowerCase().includes(fSearch));
+
                 const matchB = fBranch === "All" || item.branch === fBranch;
-                const matchE = !fEngineer || (item.picEngineer && item.picEngineer.toLowerCase().includes(fEngineer));
+                const matchC = fCategory === "All" || item.category === fCategory;
+                
                 let matchD = true;
                 if (item.createdAt) {
                     const iDate = new Date(item.createdAt.seconds * 1000).toISOString().split('T')[0];
                     if (fStart && iDate < fStart) matchD = false;
                     if (fEnd && iDate > fEnd) matchD = false;
                 }
-                return matchB && matchE && matchD;
+                
+                return matchS && matchB && matchC && matchD;
             });
             currentPage = 1;
             renderList();
